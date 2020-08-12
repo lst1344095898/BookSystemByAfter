@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.springboot.dao.BookDao">
+    <resultMap id="BookResultMap" type="com.springboot.entity.Book">
+        <result column="bookid" property="bookid"/>
+        <result column="authorName" property="authorName"/>
+        <result column="bookName" property="bookName"/>
+        <result column="educationName" property="educationName"/>
+        <result column="quantity" property="quantity"/>
+    </resultMap>
+
+    <resultMap id="BorrowBookResultMap" type="com.springboot.entity.BorrowInfo">
+        <result column="userid" property="userid"/>
+        <result column="bookid" property="bookid"/>
+        <result column="authorName" property="authorName"/>
+        <result column="bookName" property="bookName"/>
+        <result column="educationName" property="educationName"/>
+        <result column="startTime" property="startTime"/>
+    </resultMap>
+    <insert id="bookAdd" parameterType="map">
+        insert into book_shop.bs_books(bookid,authorName,bookName,educationName,quantity)
+        values (#{bookid},#{authorName},#{bookName},#{educationName},#{quantity})
+    </insert>
+    <update id="bookBorrowTimesAdd" parameterType="map">
+        update book_shop.bs_books set borrowTimes= borrowTimes+1 where bookid=#{bookid}
+    </update>
+    <select id="getBooks" resultMap="BookResultMap">
+        select * from book_shop.bs_books
+    </select>
+
+    <update id="updata" parameterType="map">
+        update book_shop.bs_books set authorName=#{authorName},bookName=#{bookName},educationName=#{educationName},quantity=#{quantity} where bookid=#{bookid}
+    </update>
+    <select id="getBooksByInput" resultMap="BorrowBookResultMap">
+                select * from
+                book_shop.bs_borrow
+                where
+                <if test="bookid!=0" >
+                bookid like concat('%',#{bookid},'%') and
+                </if>
+                <if test="userid!=0">
+                userid like concat('%',#{userid}) and
+                </if>
+                bookName like CONCAT('%',#{bookName},'%')
+                and authorName like CONCAT('%',#{authorName},'%') and educationName like  CONCAT('%',#{educationName},'%') and complete=0
+    </select>
+
+    <select id="judgmentRepetition" parameterType="map" resultType="string">
+        select 1 from  book_shop.bs_borrow where userid=#{userid} and bookid=#{bookid} and complete=0 limit 1;
+    </select>
+    <insert id="borrowAdd" parameterType="map">
+        insert into book_shop.bs_borrow(userid,bookid,authorName,bookName,educationName,startTime,complete)
+        values (#{userid},#{bookid},#{authorName},#{bookName},#{educationName},#{startTime},0)
+    </insert>
+    <update id="bookDownById" parameterType="map">
+        update book_shop.bs_books set quantity=quantity-1 where bookid=#{bookid}
+    </update>
+
+
+    <update id="returnBook" parameterType="map">
+        update book_shop.bs_borrow  set returnTime=#{returnTime},complete=1  where bookid=#{bookid} and userid=#{userid} and complete=0
+    </update>
+    <update id="bookUpById" parameterType="map">
+        update book_shop.bs_books set quantity=quantity+1 where bookid=#{bookid}
+    </update>
+
+    <select id="getBorrowBook" resultMap="BorrowBookResultMap">
+        select * from book_shop.bs_borrow where complete=0
+    </select>
+    <select id="getBooksByInputInfo" resultMap="BookResultMap">
+        select  * from book_shop.bs_books where
+        <if test="bookid!=0">
+        bookid like concat('%',#{bookid},'%') and
+        </if>
+                bookName like CONCAT('%',#{bookName},'%')
+                and authorName like CONCAT('%',#{authorName},'%') and educationName like  CONCAT('%',#{educationName},'%')
+    </select>
+    <select id="getBooksByPram" resultMap="BookResultMap">
+        select * from book_shop.bs_books where
+        <if test="bookid!=0">
+            bookid like concat('%',#{bookid},'%') and
+        </if>
+        bookName like CONCAT('%',#{bookName},'%')
+        and authorName like CONCAT('%',#{authorName},'%') and educationName like  CONCAT('%',#{educationName},'%') limit #{page}, #{count};
+    </select>
+    <resultMap id="pageResultMap" type="com.springboot.entity.book.BookPageInfo">
+        <result column="pageNew" property="pageNew"/>
+    </resultMap>
+    <select id="getPage" parameterType="map" resultMap="pageResultMap">
+        select count(bookid) as pageNew from book_shop.bs_books where
+        <if test="bookid!=0">
+            bookid like concat('%',#{bookid},'%') and
+        </if>
+        bookName like CONCAT('%',#{bookName},'%')
+        and authorName like CONCAT('%',#{authorName},'%') and educationName like  CONCAT('%',#{educationName},'%') ;
+    </select>
+
+    <select id="getBorrowInfosByUserId" resultMap="BorrowBookResultMap">
+        select * from  book_shop.bs_borrow where userid=#{userid} and complete = 0;
+    </select>
+</mapper>

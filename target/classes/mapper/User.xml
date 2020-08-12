@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springboot.dao.AnotationUserDao">
+  <resultMap id="BaseResultMap" type="com.springboot.entity.userEntity.User">
+    <result column="id" property="userid" />
+    <result column="username" property="username" />
+    <result column="password" property="password" />
+    <result column="studnetId" property="studentId"/>
+    <result column="telephone" property="telephone"/>
+<!--    <result column="description" property="description" />-->
+  </resultMap>
+  <resultMap id="UserResultMap" type="com.springboot.entity.userEntity.User">
+    <result column="id" property="userid" />
+    <result column="username" property="username" />
+    <result column="password" property="password" />
+    <result column="studnetId" property="studentId"/>
+    <result column="telephone" property="telephone"/>
+    <result column="user_code" property="user_code"/>
+    <result column="e_mail" property="e_mail"/>
+    <result column="birthday" property="birthday"/>
+    <result column="sex" property="sex"/>
+    <result column="grade" property="grade"/>
+    <result column="interest" property="interest"/>
+    <result column="introduce" property="introduce"/>
+    <!--    <result column="description" property="description" />-->
+  </resultMap>
+<!--get UserPage-->
+
+
+<!--  <sql id="Base_Column_List">-->
+<!--    id, username, password-->
+<!--  </sql>-->
+
+  <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select *
+    from bs_user
+    where username = #{username}
+  </select>
+    <select id="judgeExistence" parameterType="map" resultType="string">
+        select 1 from book_shop.bs_user where username=#{username}
+    </select>
+    <insert id="register" parameterType="map">
+        insert into book_shop.bs_user (username, password, e_mail, birthday,grade,user_code,sex,interest,introduce) values
+        (#{username},#{password},#{e_mail},#{birthday},#{grade},#{user_code},#{sex},#{interest},#{introduce})
+  </insert>
+  <select id="getUserInfoById" resultMap="UserResultMap">
+    select * from book_shop.bs_user where id=#{userid}
+  </select>
+    <update id="userBorrowTimesAdd" parameterType="map">
+        update book_shop.bs_user set borrowTimes= borrowTimes+1 where id=#{userid}
+    </update>
+  <update id="editUser" parameterType="map">
+     update book_shop.bs_user set  username=#{username},e_mail=#{e_mail},birthday=#{birthday},sex=#{sex},grade=#{grade},interest=#{interest},introduce=#{introduce} where id=#{userid}
+  </update>
+  <select id="getUserAllByInput" parameterType="map" resultMap="UserResultMap">
+        select *  from  book_shop.bs_user where
+        <if test="userid!=0">
+            id like  concat('%',#{userid},'%') and
+        </if>
+        <if test="username!=null">
+          username like  concat('%',#{username},'%')
+        </if>
+        limit #{page},#{count};
+    </select>
+    <delete id="deletUser" parameterType="map">
+        delete from book_shop.bs_user where id=#{userid};
+    </delete>
+    <resultMap id="UserPageResultMap" type="com.springboot.entity.userEntity.UserManagement">
+        <result column="pageNew" property="pageNew" />
+    </resultMap>
+  <select id="getPage" parameterType="map" resultMap="UserPageResultMap">
+        select count(id) as pageNew from book_shop.bs_user
+    </select>
+    <select id="e_mailJudge" parameterType="map" resultType="string">
+          select 1 from book_shop.bs_user where e_mail=#{e_mail} limit 1
+    </select>
+    <select id="getUserBuE_mail" parameterType="map" resultMap="UserResultMap">
+        select * from book_shop.bs_user where e_mail=#{e_mail}
+    </select>
+    <update id="editPassword" parameterType="map">
+        update book_shop.bs_user set password=#{password} where id=#{userid}
+    </update>
+</mapper>

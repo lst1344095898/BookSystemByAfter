@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.springboot.dao.RecallDao">
+    <insert id="recallAdd" parameterType="map">
+        insert into book_shop.bs_recall(userid,bookid,bookName,startTime)
+        values (#{userid},#{bookid},#{bookName},#{startTime})
+    </insert>
+    <update id="delay" parameterType="map">
+            update book_shop.bs_borrow  set startTime=#{startTime}  where bookid=#{bookid} and userid=#{userid} and complete=0
+    </update>
+</mapper>
